@@ -1,0 +1,20 @@
+type Query {
+  info: String!
+  feed(filter: String): Feed!
+}
+
+type Feed {
+  links: [Link!]!
+}
+
+type Mutation {
+  post(url: String!, description: String!, genre: String!): Link!
+  delete(id: ID!): Link
+}
+
+type Link {
+  id: ID!
+  description: String!
+  url: String!
+  genre: String!
+}
