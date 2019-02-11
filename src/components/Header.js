@@ -1,12 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Title = styled.div`
-  font-size: 2em;
-  font-weight: 600;
-  color: blue;
+const Logo = styled.img`
+  height: 2em;
+  margin-bottom: 1em;
 `;
 
-const Header = () => <Title>Music</Title>;
+const Header = () => <Logo src="./logo.png" />;
 
 export default Header;

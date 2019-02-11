@@ -21,8 +21,8 @@ const Genre = styled.span`
 `;
 
 const LinkWrapper = styled.div`
-display: flex
-align-items: center
+  display: flex;
+  align-items: center;
 `;
 
 const TrackLink = props => {

@@ -12,6 +12,10 @@ const Genre = styled.button`
   cursor: pointer;
 `;
 
+const GenreWrapper = styled.div`
+  margin-bottom: 1.5em;
+`;
+
 const GenreList = props => {
   const reducedGenres =
     props.feed !== undefined
@@ -24,13 +28,14 @@ const GenreList = props => {
       : [];
 
   return (
-    <div>
+    <GenreWrapper>
+      <Genre onClick={() => props.showAll()}>All</Genre>
       {reducedGenres.map((item, index) => (
         <Genre key={index} onClick={() => props.onClick(item)}>
           {item}
         </Genre>
       ))}
-    </div>
+    </GenreWrapper>
   );
 };
 

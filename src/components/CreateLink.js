@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Mutation } from 'react-apollo';
+import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 
-import GenreList from './GenreList';
+import { FEED_QUERY } from './TrackList';
+
+const FlexContainer = styled.div`
+  display: flex;
+`;
 
 const Button = styled.button`
   font-family: 'Montserrat', sans-serif;
@@ -25,10 +29,22 @@ const Button = styled.button`
 const Input = styled.input`
   font-family: 'Montserrat', sans-serif;
   font-size: 1em;
+  margin-left: 0.25em;
+  margin-right: 1em;
+  border-bottom: 2px solid black;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+`;
+
+const Label = styled.label`
+  font-size: 0.75em;
   margin: 0.25em;
-  padding: 0.25em 1em;
-  border: 2px solid black;
-  border-radius: 3px;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const POST_MUTATION = gql`
@@ -42,47 +58,69 @@ const POST_MUTATION = gql`
   }
 `;
 
-const CreateLink = () => {
+const withCreate = graphql(POST_MUTATION, {
+  props: ({ mutate }) => ({
+    createLink: (description, url, genre) =>
+      mutate({ variables: { description, url, genre } }),
+  }),
+  options: {
+    update: (proxy, { data: { post } }) => {
+      const cacheResult = proxy.readQuery({ query: FEED_QUERY });
+      proxy.writeQuery({
+        query: FEED_QUERY,
+        data: {
+          feed: {
+            ...cacheResult.feed,
+            links: [...cacheResult.feed.links.reverse(), post],
+          },
+        },
+      });
+    },
+  },
+});
+
+const RenderInput = ({ label, value, onChange }) => (
+  <InputWrapper>
+    <Label>{label}</Label>
+    <Input value={value} onChange={onChange} type="text" />
+  </InputWrapper>
+);
+
+const CreateLink = ({ createLink }) => {
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
   const [genre, setGenre] = useState('');
 
   return (
-    <div>
-      <GenreList />
-      <Input
+    <FlexContainer>
+      <RenderInput
+        label="Artist and track name"
         value={description}
         onChange={e => setDescription(e.target.value)}
-        type="text"
-        placeholder="Artist and track name"
       />
-      <Input
+      <RenderInput
+        label="Link"
         value={url}
         onChange={e => setUrl(e.target.value)}
-        type="text"
-        placeholder="Link"
       />
-      <Input
+      <RenderInput
+        label="Genre"
         value={genre}
         onChange={e => setGenre(e.target.value.toLowerCase())}
-        type="text"
-        placeholder="Genre"
       />
-      <Mutation
-        mutation={POST_MUTATION}
-        variables={{ description, url, genre }}
+      <Button
+        disabled={description.length && url.length ? false : true}
+        onClick={() => {
+          createLink(description, url, genre);
+          setDescription('');
+          setUrl('');
+          setGenre('');
+        }}
       >
-        {postMutation => (
-          <Button
-            disabled={description.length > 0 && url.length > 0 ? false : true}
-            onClick={postMutation}
-          >
-            Submit
-          </Button>
-        )}
-      </Mutation>
-    </div>
+        Submit
+      </Button>
+    </FlexContainer>
   );
 };
 
-export default CreateLink;
+export default withCreate(CreateLink);
