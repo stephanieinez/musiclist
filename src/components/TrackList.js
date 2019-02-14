@@ -121,16 +121,16 @@ const LinkList = ({ loading, error, feed, deleteLink, client }) => {
     }
   };
 
-  const showAll = () => {
-    setLinks([]);
-  };
-
   if (loading) return <div>Fetching</div>;
   if (error) return <div>Error</div>;
 
   return (
     <div>
-      <GenreList feed={feed.links} onClick={filterGenres} showAll={showAll} />
+      <GenreList
+        feed={feed.links}
+        onClick={filterGenres}
+        showAll={() => setLinks([])}
+      />
       {filteredLinks.length
         ? filteredLinks.map(link => (
             <ListItem key={link.id}>
